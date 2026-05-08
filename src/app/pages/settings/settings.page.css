@@ -1,0 +1,43 @@
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  animation: settings-slide-left 380ms ease-out;
+}
+
+:host-context([data-reduce-motion='true']) .settings-page {
+  animation: none;
+}
+
+.settings-header {
+  max-width: 640px;
+}
+
+.settings-subtitle {
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.form-field-inline {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (min-width: 768px) {
+  .form-field-inline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@keyframes settings-slide-left {
+  from {
+    opacity: 0;
+		transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,118 @@
+<div class="page-container auth-page">
+  <header class="auth-header">
+    <h1>Fiók elérése</h1>
+    <p class="auth-subtitle">
+    Itt tudsz bejelentkezni a meglévő fiókoddal, vagy létrehozhatsz egy új
+    regisztrációt.
+  </p>
+  </header>
+
+  <div class="auth-layout">
+    <p class="sr-only">Bejelentkezés vagy regisztráció</p>
+    @if (formError()) {
+      <section class="card card-error" aria-live="assertive">
+        <p class="card-text">{{ formError() }}</p>
+      </section>
+    }
+  @if (!showRegister()) {
+    <section class="card" aria-label="Bejelentkezés űrlap">
+      <p class="sr-only">Bejelentkezési űrlap</p>
+      <h2 class="card-title">Bejelentkezés</h2>
+      <form novalidate [formGroup]="loginForm" (ngSubmit)="onLoginSubmit($event)">
+      <div class="form-field">
+        <label class="form-label" for="login-email">Email cím</label>
+        <input id="login-email" class="form-control" type="email" autocomplete="email" formControlName="email" />
+        @if (loginForm.controls.email.invalid && (loginForm.controls.email.touched || loginForm.controls.email.dirty)) {
+          <p class="field-error">Adj meg érvényes email címet.</p>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="login-password">Jelszó</label>
+        <input id="login-password" class="form-control" type="password" autocomplete="current-password" formControlName="password" />
+        @if (loginForm.controls.password.invalid && (loginForm.controls.password.touched || loginForm.controls.password.dirty)) {
+          <p class="field-error">A jelszó legyen legalább 8 karakter.</p>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary" aria-label="Bejelentkezés gomb" [disabled]="submitting()">
+        Bejelentkezés
+      </button>
+      </form>
+
+      <p class="auth-toggle-text">
+      Nincs még fiókod?
+      <button type="button" class="link-button" (click)="showRegisterForm()" aria-label="Regisztrációs fül megnyitása">
+        Regisztrálj itt
+      </button>
+      </p>
+    </section>
+  } @else {
+    <section class="card" aria-label="Regisztrációs fül">
+      <p class="sr-only">Regisztrációs űrlap</p>
+      <h2 class="card-title">Regisztráció</h2>
+      <p class="card-text">
+      Hozz létre fiókot, hogy elmentsd az étkezéseidet, edzéseidet és írhass a
+      fórumra.
+      </p>
+
+      <form
+      novalidate
+      aria-label="Regisztrációs űrlap"
+      [formGroup]="registerForm"
+      (ngSubmit)="onRegisterSubmit($event)"
+    >
+      <div class="form-field">
+        <label class="form-label" for="register-name">Megjelenített név</label>
+        <input id="register-name" class="form-control" type="text" autocomplete="name" formControlName="displayName" />
+        @if (registerForm.controls.displayName.invalid && (registerForm.controls.displayName.touched || registerForm.controls.displayName.dirty)) {
+          <p class="field-error">Adj meg legalább 2 karakter hosszú nevet.</p>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="register-email">Email cím</label>
+        <input id="register-email" class="form-control" type="email" autocomplete="email" formControlName="email" />
+        @if (registerForm.controls.email.invalid && (registerForm.controls.email.touched || registerForm.controls.email.dirty)) {
+          <p class="field-error">Adj meg érvényes email címet.</p>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="register-password">Jelszó</label>
+        <input id="register-password" class="form-control" type="password" autocomplete="new-password" formControlName="password" />
+        <p class="card-text">{{ passwordHint }}</p>
+        @if (registerForm.controls.password.invalid && (registerForm.controls.password.touched || registerForm.controls.password.dirty)) {
+          <p class="field-error">Adj meg erősebb jelszót.</p>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="register-password-confirm">Jelszó megerősítése</label>
+        <input id="register-password-confirm" class="form-control" type="password" autocomplete="new-password" formControlName="passwordConfirm" />
+        @if (passwordMismatch() && (registerForm.controls.passwordConfirm.touched || registerForm.controls.passwordConfirm.dirty)) {
+          <p class="field-error">A két jelszó nem egyezik.</p>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary" aria-label="Regisztráció gomb" [disabled]="submitting()">
+        Regisztráció
+      </button>
+      </form>
+
+      <button
+        type="button"
+        class="btn btn-secondary auth-back-button"
+        (click)="showLoginForm()"
+        aria-label="Vissza a bejelentkezési fülre"
+      >
+      Vissza a bejelentkezéshez
+      </button>
+    </section>
+  }
+  </div>
+
+  <p class="sr-only" aria-live="polite">
+	{{ lastActionMessage() }}
+  </p>
+</div>

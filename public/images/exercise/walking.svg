@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Séta">
+  <rect width="120" height="120" rx="20" fill="#e0f2fe"/>
+  <circle cx="62" cy="34" r="10" fill="#0f172a"/>
+  <path d="M61 46l-10 15 10 12 11-9 10 18" stroke="#0f172a" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

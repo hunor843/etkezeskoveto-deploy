@@ -1,0 +1,108 @@
+<div class="page-container topic-page">
+  <header class="topic-header">
+    <a routerLink="/forum" class="topic-back-link">← Vissza a fórumhoz</a>
+    <h1>Téma részletei</h1>
+  </header>
+
+  @if (loading()) {
+    <section class="card">
+      <p class="card-text">Betöltés folyamatban...</p>
+    </section>
+  } @else if (error()) {
+    <section class="card" aria-live="assertive">
+      <p class="card-text topic-error">{{ error() }}</p>
+    </section>
+  } @else if (!topic()) {
+    <section class="card">
+      <p class="card-text">A téma nem található.</p>
+    </section>
+  } @else {
+    <section class="card" aria-label="Topic tartalom">
+      <h2 class="card-title">{{ topic()!.title }}</h2>
+      <p class="card-text">{{ topic()!.body }}</p>
+      <p class="topic-meta">Utoljára frissítve: {{ topic()!.updatedAt | date:'y.MM.dd HH:mm' }}</p>
+
+      @if (canDeleteTopic(topic()!)) {
+        <div class="topic-actions">
+          <button
+            type="button"
+            class="btn btn-secondary btn-small"
+            (click)="deleteTopic()"
+            [disabled]="deletingTopic()"
+            aria-label="Téma törlése"
+          >
+            Téma törlése
+          </button>
+        </div>
+      }
+    </section>
+
+    <section class="card" aria-label="Hozzászólás írása">
+      <h2 class="card-title">Hozzászólás írása</h2>
+
+      @if (isLoggedIn()) {
+        <form class="reply-form" [formGroup]="replyForm" (ngSubmit)="submitReply()" novalidate>
+          <div class="form-field">
+            <label class="form-label" for="reply-body">Üzenet</label>
+            <textarea
+              id="reply-body"
+              class="form-control"
+              formControlName="body"
+              rows="4"
+              placeholder="Írd ide a hozzászólásod..."
+            ></textarea>
+            @if (hasReplyFieldError()) {
+              <p class="topic-error">Adj meg legalább 2 karaktert.</p>
+            }
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="submittingReply() || loading()">
+              Hozzászólás küldése
+            </button>
+          </div>
+        </form>
+      } @else {
+        <p class="card-text">Hozzászólni csak bejelentkezés után tudsz.</p>
+        <a
+          routerLink="/login"
+          [queryParams]="{ returnUrl: router.url }"
+          class="btn btn-secondary topic-login-link"
+        >
+          Bejelentkezés
+        </a>
+      }
+    </section>
+
+    <section class="card" aria-label="Hozzászólások listája">
+      <h2 class="card-title">Hozzászólások</h2>
+
+      @if (replies().length === 0) {
+        <p class="card-text">Még nincs hozzászólás.</p>
+      } @else {
+        <ul class="reply-list">
+          @for (reply of replies(); track reply.id) {
+            <li class="reply-item">
+              <p class="reply-body">{{ reply.body || reply.content }}</p>
+              <div class="reply-footer">
+                <p class="reply-meta">{{ reply.createdAt | date:'y.MM.dd HH:mm' }}</p>
+
+                @if (canDeleteReply(reply)) {
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-small"
+                    (click)="deleteReply(reply)"
+                    [disabled]="deletingReplyId() === reply.id"
+                    aria-label="Hozzászólás törlése"
+                  >
+                    Törlés
+                  </button>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</div>

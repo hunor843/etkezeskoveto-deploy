@@ -1,0 +1,73 @@
+<header class="app-header">
+  <div class="app-header__inner page-container">
+    <div class="app-header__left">
+      <button
+        class="icon-button"
+        type="button"
+        aria-label="Beállítások oldal megnyitása"
+        routerLink="/settings"
+      >
+        <span class="icon-button__circle" aria-hidden="true">
+          <span class="icon-gear"></span>
+        </span>
+        <span class="icon-button__label">Beállítások</span>
+      </button>
+    </div>
+
+    <div class="app-header__brand" routerLink="/" routerLinkActive="app-header__brand--active">
+      <div class="brand-mark" aria-hidden="true">
+        <span class="brand-apple"></span>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Macro tracker</span>
+        <span class="brand-subtitle">Napi makró- és vízbevitel követő</span>
+      </div>
+    </div>
+
+    <nav class="app-header__nav" aria-label="Fő navigáció">
+      <a routerLink="/" routerLinkActive="nav-link--active" class="nav-link">Főoldal</a>
+      <a routerLink="/forum" routerLinkActive="nav-link--active" class="nav-link">Fórum</a>
+    </nav>
+
+    <div class="app-header__right">
+      @if (!isLoggedIn()) {
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Bejelentkezés oldal megnyitása"
+          routerLink="/login"
+          [queryParams]="{ returnUrl: router.url }"
+        >
+          <span class="icon-button__circle" aria-hidden="true">
+            <span class="icon-user"></span>
+          </span>
+          <span class="icon-button__label">Bejelentkezés</span>
+        </button>
+      } @else {
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Profil oldal megnyitása"
+          routerLink="/profile"
+        >
+          <span class="icon-button__circle" aria-hidden="true">
+            <span class="icon-user"></span>
+          </span>
+          <span class="icon-button__label">Profil</span>
+        </button>
+
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Kijelentkezés a fiókból"
+          (click)="onLogout()"
+        >
+          <span class="icon-button__circle" aria-hidden="true">
+            <span class="icon-user"></span>
+          </span>
+          <span class="icon-button__label">Kijelentkezés</span>
+        </button>
+      }
+    </div>
+  </div>
+</header>

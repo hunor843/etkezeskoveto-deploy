@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Tonhal saláta">
+  <rect width="120" height="120" rx="20" fill="#dcfce7"/>
+  <circle cx="60" cy="70" r="34" fill="#ffffff" stroke="#86efac" stroke-width="4"/>
+  <ellipse cx="50" cy="70" rx="12" ry="8" fill="#34d399"/>
+  <ellipse cx="66" cy="72" rx="13" ry="9" fill="#22c55e"/>
+  <ellipse cx="62" cy="60" rx="11" ry="7" fill="#93c5fd"/>
+</svg>

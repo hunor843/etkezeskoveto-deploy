@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Zabkása">
+  <rect width="120" height="120" rx="20" fill="#fef3c7"/>
+  <circle cx="60" cy="68" r="36" fill="#f8fafc" stroke="#d1d5db" stroke-width="4"/>
+  <ellipse cx="60" cy="70" rx="28" ry="18" fill="#f5deb3"/>
+  <circle cx="48" cy="66" r="4" fill="#ef4444"/>
+  <circle cx="60" cy="62" r="4" fill="#3b82f6"/>
+  <circle cx="72" cy="67" r="4" fill="#22c55e"/>
+</svg>

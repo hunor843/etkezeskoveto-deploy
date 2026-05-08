@@ -1,0 +1,253 @@
+.app-header {
+  background-color: var(--color-header-bg);
+  color: var(--color-header-text);
+}
+
+.app-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #f97316, #dc2626);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  animation: brand-grow 600ms ease-out forwards;
+}
+
+:host-context([data-reduce-motion='true']) .brand-mark {
+  animation: none;
+}
+
+.brand-apple::before {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 16px;
+  border-radius: 50% 50% 40% 40%;
+  background-color: #22c55e;
+  top: -6px;
+  left: 14px;
+  transform: rotate(-25deg);
+}
+
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--color-bg);
+  transform-origin: center;
+  transform: scale(0);
+  animation: brand-bite 520ms ease-out forwards;
+  animation-delay: 260ms;
+}
+
+:host-context([data-reduce-motion='true']) .brand-mark::after {
+  animation: none;
+}
+
+.brand-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.brand-subtitle {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: rgba(248, 250, 252, 0.8);
+}
+
+.app-header__nav {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.app-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nav-link {
+  font-size: var(--font-size-sm);
+  color: rgba(248, 250, 252, 0.9);
+}
+
+.nav-link--active {
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-warning);
+}
+
+.icon-button {
+  border: none;
+  background-color: transparent;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  cursor: pointer;
+}
+
+.icon-button__circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button:hover .icon-button__circle {
+  background-color: rgba(148, 163, 184, 0.2);
+}
+
+.icon-gear,
+.icon-user {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+}
+
+.icon-gear::before,
+.icon-user::before {
+  content: "";
+  display: block;
+}
+
+/* Simple differentiation */
+.icon-gear {
+  border-style: dashed;
+}
+
+.icon-user {
+  border-style: solid;
+}
+
+.icon-button__label {
+  margin-top: 2px;
+  font-size: var(--font-size-xs);
+  line-height: 1;
+}
+
+/* Mobil / kis kijelző: stílusos, stabil törés + nav elérhető */
+@media (max-width: 767px) {
+  .app-header__inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "left brand right"
+      "nav nav nav";
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+  }
+
+  .app-header__left {
+    grid-area: left;
+  }
+
+  .app-header__brand {
+    grid-area: brand;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .brand-text {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .brand-title {
+    overflow-wrap: anywhere;
+  }
+
+  .app-header__right {
+    grid-area: right;
+  }
+
+  .app-header__nav {
+    grid-area: nav;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding-top: var(--space-1);
+  }
+
+  .nav-link {
+    padding: var(--space-2) var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-link--active {
+    border-bottom: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+/* Extra kis kijelző: a brand ne nyomódjon az ikonok közé */
+@media (max-width: 425px) {
+  .app-header__inner {
+    grid-template-areas:
+      "left . right"
+      "brand brand brand"
+      "nav nav nav";
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  .brand-title {
+    font-size: var(--font-size-md);
+  }
+}
+
+/* 360px alatt a feliratok túl sok helyet visznek el; aria-label megmarad */
+@media (max-width: 360px) {
+  .icon-button__label {
+    display: none;
+  }
+}
+
+@keyframes brand-grow {
+  from {
+    opacity: 0;
+    transform: scale(0.4) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
+  }
+}
+
+@keyframes brand-bite {
+  from {
+    transform: scale(0) translate(8px, -4px);
+  }
+  to {
+    transform: scale(1) translate(0, 0);
+  }
+}

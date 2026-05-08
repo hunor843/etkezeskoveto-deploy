@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Futás">
+  <rect width="120" height="120" rx="20" fill="#dbeafe"/>
+  <circle cx="69" cy="30" r="10" fill="#0f172a"/>
+  <path d="M69 42l-13 12 10 8 18-5-4 18 17 13" stroke="#0f172a" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

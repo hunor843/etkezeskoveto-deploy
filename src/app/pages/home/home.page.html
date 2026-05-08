@@ -1,0 +1,455 @@
+<div class="page-container home-page" aria-labelledby="home-title">
+  <header class="home-header">
+    <div>
+      <h1 id="home-title">Napi áttekintés</h1>
+      <p class="home-subtitle">Étkezés, mozgás és víz napi áttekintése.</p>
+    </div>
+
+    <div class="home-day-switcher" aria-label="Nap váltása">
+      <button type="button" class="btn btn-secondary btn-small" (click)="changeDay(-1)" aria-label="Előző nap">◀</button>
+      <p class="home-day-label">{{ currentDateLabel() }}</p>
+      <button type="button" class="btn btn-secondary btn-small" (click)="changeDay(1)" aria-label="Következő nap">▶</button>
+    </div>
+  </header>
+
+  @if (loadError()) {
+    <section class="card card-error" aria-live="assertive">
+      <p class="card-text">{{ loadError() }}</p>
+    </section>
+  }
+
+  <section class="grid" aria-label="Napi összegzés">
+    <article class="card" aria-label="Kalória és makró összegzés">
+      <h2 class="card-title">Kalória összegzés</h2>
+      <dl class="stat-list">
+        <div class="stat-row">
+          <dt>Ma bevitt</dt>
+          <dd>{{ totalCaloriesIn() }} / {{ dailyCalorieTarget() }} kcal</dd>
+        </div>
+        <div class="stat-row">
+          <dt>Elégetett</dt>
+          <dd class="stat-green">{{ caloriesBurnedToday() }} kcal</dd>
+        </div>
+        <div class="stat-row stat-row--highlight">
+          <dt>Maradék</dt>
+          <dd>{{ caloriesRemaining() }} kcal</dd>
+        </div>
+      </dl>
+      <dl class="stat-list stat-list--macros">
+        <div class="stat-row">
+          <dt>Fehérje</dt>
+          <dd class="stat-blue">{{ totalProtein() }} g</dd>
+        </div>
+        <div class="stat-row">
+          <dt>Szénhidrát</dt>
+          <dd class="stat-yellow">{{ totalCarbs() }} g</dd>
+        </div>
+        <div class="stat-row">
+          <dt>Zsír</dt>
+          <dd class="stat-red">{{ totalFat() }} g</dd>
+        </div>
+      </dl>
+    </article>
+
+    <article class="card" aria-label="Vízbevitel">
+      <h2 class="card-title">Vízbevitel</h2>
+      <p class="card-text">{{ waterConsumedMl() }} ml / {{ waterTargetMl() }} ml</p>
+      <div class="water-glasses" aria-label="Poharak">
+        @for (isFull of waterGlassStates(); track $index) {
+          <button type="button" class="glass" [class.glass--empty]="!isFull" (click)="addWaterGlass()" aria-label="Pohár hozzáadása">🥛</button>
+        }
+      </div>
+    </article>
+
+    <article class="card" aria-label="Mai mozgás">
+      <h2 class="card-title">Mozgás</h2>
+      <p class="card-text">Összes idő: {{ exerciseMinutesToday() }} perc</p>
+      <p class="card-text">Összesen elégetett: {{ caloriesBurnedToday() }} kcal</p>
+    </article>
+  </section>
+
+  <section class="card card--full" aria-label="Étkezések kezelése">
+    <header class="card-header card-header--stack">
+      <h2 class="card-title">Étkezések</h2>
+      <p class="card-text">Előre betáplált étel + saját étel rögzítés, keresés + szűrés + rendezés.</p>
+    </header>
+
+    <div class="mode-switch" role="group" aria-label="Étkezés rögzítés módja">
+      <button
+        type="button"
+        class="btn btn-secondary btn-small"
+        [class.mode-option--active]="mealEntryMode() === 'preset'"
+        [disabled]="editingMealId() !== null"
+        (click)="setMealEntryMode('preset')"
+      >
+        Előre betáplált
+      </button>
+      <button
+        type="button"
+        class="btn btn-secondary btn-small"
+        [class.mode-option--active]="mealEntryMode() === 'custom'"
+        [disabled]="editingMealId() !== null"
+        (click)="setMealEntryMode('custom')"
+      >
+        Saját étel
+      </button>
+    </div>
+
+    @if (editingMealId() !== null) {
+      <p class="card-text mode-hint">Szerkesztés közben a saját étel mód aktív.</p>
+    }
+
+    @if (mealEntryMode() === 'preset' && editingMealId() === null) {
+      <form class="entry-form" [formGroup]="mealPresetForm" (ngSubmit)="submitMeal()" novalidate>
+        <div class="form-grid form-grid--meal">
+          <div class="form-field">
+            <label class="form-label" for="meal-preset-food">Előre betáplált étel</label>
+            <select
+              id="meal-preset-food"
+              class="form-control"
+              [value]="selectedFoodPresetId()"
+              (change)="onMealPresetFoodChange($event)"
+            >
+              <option value="">Válassz ételt</option>
+              @for (food of foods(); track food.id) {
+                <option [value]="food.id">{{ food.name }}</option>
+              }
+            </select>
+            @if (!selectedFoodPresetId()) {
+              <p class="field-error">Válassz egy előre betáplált ételt.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="meal-preset-grams">Mennyiség (g)</label>
+            <input id="meal-preset-grams" class="form-control" type="number" min="1" formControlName="grams" (input)="onMealPresetGramsInput($event)" />
+            @if (hasMealPresetFieldError('grams')) {
+              <p class="field-error">Adj meg legalább 1 grammot.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="meal-preset-type">Típus</label>
+            <select id="meal-preset-type" class="form-control" formControlName="mealType">
+              <option value="Reggeli">Reggeli</option>
+              <option value="Ebéd">Ebéd</option>
+              <option value="Vacsora">Vacsora</option>
+              <option value="Snack">Snack</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="meal-preset-when">Idő</label>
+            <input id="meal-preset-when" class="form-control" type="time" formControlName="when" />
+            @if (hasMealPresetFieldError('when')) {
+              <p class="field-error">Adj meg érvényes időpontot.</p>
+            }
+          </div>
+        </div>
+
+        @if (mealPresetPreview(); as preview) {
+          <p class="card-text preset-preview">
+            Becsült érték: {{ preview.calories }} kcal, {{ preview.protein }} g fehérje,
+            {{ preview.carbs }} g szénhidrát, {{ preview.fat }} g zsír.
+          </p>
+        }
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="submittingMeal() || loading()">
+            Étkezés létrehozása
+          </button>
+        </div>
+      </form>
+    } @else {
+      <form class="entry-form" [formGroup]="mealForm" (ngSubmit)="submitMeal()" novalidate>
+        <div class="form-grid form-grid--meal">
+          <div class="form-field">
+            <label class="form-label" for="meal-name">Név</label>
+            <input id="meal-name" class="form-control" type="text" formControlName="name" />
+            @if (hasMealFieldError('name')) {
+              <p class="field-error">Adj meg legalább 3 karakter hosszú nevet.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="meal-type">Típus</label>
+            <select id="meal-type" class="form-control" formControlName="mealType">
+              <option value="Reggeli">Reggeli</option>
+              <option value="Ebéd">Ebéd</option>
+              <option value="Vacsora">Vacsora</option>
+              <option value="Snack">Snack</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="meal-when">Idő</label>
+            <input id="meal-when" class="form-control" type="time" formControlName="when" />
+            @if (hasMealFieldError('when')) {
+              <p class="field-error">Adj meg érvényes időpontot.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="meal-calories">Kalória</label>
+            <input id="meal-calories" class="form-control" type="number" min="1" formControlName="calories" />
+            @if (hasMealFieldError('calories')) {
+              <p class="field-error">A kalória értéke legyen legalább 1.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="meal-protein">Fehérje (g)</label>
+            <input id="meal-protein" class="form-control" type="number" min="0" formControlName="protein" />
+            @if (hasMealFieldError('protein')) {
+              <p class="field-error">Negatív érték nem adható meg.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="meal-carbs">Szénhidrát (g)</label>
+            <input id="meal-carbs" class="form-control" type="number" min="0" formControlName="carbs" />
+            @if (hasMealFieldError('carbs')) {
+              <p class="field-error">Negatív érték nem adható meg.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="meal-fat">Zsír (g)</label>
+            <input id="meal-fat" class="form-control" type="number" min="0" formControlName="fat" />
+            @if (hasMealFieldError('fat')) {
+              <p class="field-error">Negatív érték nem adható meg.</p>
+            }
+          </div>
+
+          <div class="form-field form-field--full">
+            <label class="form-label" for="meal-image">Saját kép (opcionális)</label>
+            <input id="meal-image" class="form-control" type="file" accept="image/*" (change)="onCustomMealImageSelected($event)" />
+            @if (customMealImageDataUrl(); as imageUrl) {
+              <div class="custom-image-preview">
+                <img [src]="imageUrl" alt="Feltöltött ételkép" class="custom-image-preview__img" />
+                <button type="button" class="btn btn-secondary btn-small" (click)="removeCustomMealImage()">Kép törlése</button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="submittingMeal() || loading()">
+            {{ editingMealId() === null ? 'Étkezés létrehozása' : 'Étkezés frissítése' }}
+          </button>
+          @if (editingMealId() !== null) {
+            <button type="button" class="btn btn-secondary" (click)="cancelMealEdit()">Mégse</button>
+          }
+        </div>
+      </form>
+    }
+
+    <div class="filter-row" aria-label="Étkezés lista szűrése">
+      <div class="form-field filter-field">
+        <label class="form-label" for="meal-search">Keresés</label>
+        <input
+          id="meal-search"
+          class="form-control"
+          type="search"
+          [value]="mealSearch()"
+          (input)="onMealSearchInput($event)"
+          placeholder="Pl. csirke"
+        />
+      </div>
+      <div class="form-field filter-field">
+        <label class="form-label" for="meal-filter">Szűrés típus szerint</label>
+        <select id="meal-filter" class="form-control" [value]="mealTypeFilter()" (change)="onMealTypeFilterChange($event)">
+          <option value="all">Összes</option>
+          <option value="Reggeli">Reggeli</option>
+          <option value="Ebéd">Ebéd</option>
+          <option value="Vacsora">Vacsora</option>
+          <option value="Snack">Snack</option>
+        </select>
+      </div>
+      <div class="form-field filter-field">
+        <label class="form-label" for="meal-sort">Rendezés</label>
+        <select id="meal-sort" class="form-control" [value]="mealSort()" (change)="onMealSortChange($event)">
+          <option value="timeDesc">Idő (legújabb elöl)</option>
+          <option value="timeAsc">Idő (régebbi elöl)</option>
+          <option value="calDesc">Kalória (csökkenő)</option>
+          <option value="calAsc">Kalória (növekvő)</option>
+        </select>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <p class="card-text loading-text">Betöltés folyamatban...</p>
+    } @else if (meals().length === 0) {
+      <p class="card-text empty-text">Nincs étkezés ezen a napon a jelenlegi szűrőkkel.</p>
+    } @else {
+      <ul class="item-list" aria-label="Étkezések listája">
+        @for (meal of meals(); track meal.id) {
+          <li class="item-row">
+            <div class="item-content">
+              <p class="item-title item-title--with-image">
+                <img class="catalog-thumb" [src]="getMealImageUrl(meal)" [alt]="meal.name + ' képe'" />
+                <span>{{ meal.name }}</span>
+              </p>
+              <p class="item-meta">{{ meal.mealType }} · {{ meal.when }} · {{ meal.calories }} kcal</p>
+            </div>
+            <div class="row-actions">
+              <button type="button" class="btn btn-secondary btn-small" (click)="editMeal(meal.id)">Szerkesztés</button>
+              <button type="button" class="btn btn-secondary btn-small" (click)="deleteMeal(meal.id)">Törlés</button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="card card--full" aria-label="Edzések kezelése">
+    <header class="card-header card-header--stack">
+      <h2 class="card-title">Edzések</h2>
+      <p class="card-text">Előre betáplált mozgásforma + saját mozgás rögzítése.</p>
+    </header>
+
+    <div class="mode-switch" role="group" aria-label="Edzés rögzítés módja">
+      <button
+        type="button"
+        class="btn btn-secondary btn-small"
+        [class.mode-option--active]="exerciseEntryMode() === 'preset'"
+        [disabled]="editingExerciseId() !== null"
+        (click)="setExerciseEntryMode('preset')"
+      >
+        Előre betáplált
+      </button>
+      <button
+        type="button"
+        class="btn btn-secondary btn-small"
+        [class.mode-option--active]="exerciseEntryMode() === 'custom'"
+        [disabled]="editingExerciseId() !== null"
+        (click)="setExerciseEntryMode('custom')"
+      >
+        Saját mozgás
+      </button>
+    </div>
+
+    @if (editingExerciseId() !== null) {
+      <p class="card-text mode-hint">Szerkesztés közben a saját mozgás mód aktív.</p>
+    }
+
+    @if (exerciseEntryMode() === 'preset' && editingExerciseId() === null) {
+      <form class="entry-form" [formGroup]="exercisePresetForm" (ngSubmit)="submitExercise()" novalidate>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label" for="exercise-preset-type">Előre betáplált mozgásforma</label>
+            <select
+              id="exercise-preset-type"
+              class="form-control"
+              [value]="selectedExercisePresetId()"
+              (change)="onExercisePresetTypeChange($event)"
+            >
+              <option value="">Válassz mozgásformát</option>
+              @for (exerciseType of exerciseTypes(); track exerciseType.id) {
+                <option [value]="exerciseType.id">{{ exerciseType.name }}</option>
+              }
+            </select>
+            @if (!selectedExercisePresetId()) {
+              <p class="field-error">Válassz egy előre betáplált mozgásformát.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="exercise-preset-duration">Időtartam (perc)</label>
+            <input
+              id="exercise-preset-duration"
+              class="form-control"
+              type="number"
+              min="1"
+              formControlName="durationMinutes"
+              (input)="onExercisePresetDurationInput($event)"
+            />
+            @if (hasExercisePresetFieldError('durationMinutes')) {
+              <p class="field-error">Az időtartam legalább 1 perc legyen.</p>
+            }
+          </div>
+        </div>
+
+        @if (selectedExercisePreset(); as preset) {
+          <p class="card-text preset-preview">
+            Intenzitás: {{ preset.intensity }} · Becsült elégetett: {{ exercisePresetPreviewCalories() ?? 0 }} kcal
+          </p>
+        }
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="submittingExercise() || loading()">
+            Edzés létrehozása
+          </button>
+        </div>
+      </form>
+    } @else {
+      <form class="entry-form" [formGroup]="exerciseForm" (ngSubmit)="submitExercise()" novalidate>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label" for="exercise-name">Név</label>
+            <input id="exercise-name" class="form-control" type="text" formControlName="name" />
+            @if (hasExerciseFieldError('name')) {
+              <p class="field-error">Adj meg legalább 3 karakter hosszú nevet.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="exercise-intensity">Intenzitás</label>
+            <select id="exercise-intensity" class="form-control" formControlName="intensity">
+              <option value="low">Alacsony</option>
+              <option value="medium">Közepes</option>
+              <option value="high">Magas</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="exercise-duration">Időtartam (perc)</label>
+            <input id="exercise-duration" class="form-control" type="number" min="1" formControlName="durationMinutes" />
+            @if (hasExerciseFieldError('durationMinutes')) {
+              <p class="field-error">Az időtartam legalább 1 perc legyen.</p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label" for="exercise-calories">Elégetett kalória</label>
+            <input id="exercise-calories" class="form-control" type="number" min="1" formControlName="caloriesBurned" />
+            @if (hasExerciseFieldError('caloriesBurned')) {
+              <p class="field-error">Adj meg legalább 1 kcal értéket.</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="submittingExercise() || loading()">
+            {{ editingExerciseId() === null ? 'Edzés létrehozása' : 'Edzés frissítése' }}
+          </button>
+          @if (editingExerciseId() !== null) {
+            <button type="button" class="btn btn-secondary" (click)="cancelExerciseEdit()">Mégse</button>
+          }
+        </div>
+      </form>
+    }
+
+    @if (loading()) {
+      <p class="card-text loading-text">Betöltés folyamatban...</p>
+    } @else if (exercises().length === 0) {
+      <p class="card-text empty-text">Nincs rögzített edzés ezen a napon.</p>
+    } @else {
+      <ul class="item-list" aria-label="Edzések listája">
+        @for (exercise of exercises(); track exercise.id) {
+          <li class="item-row">
+            <div class="item-content">
+              <p class="item-title">{{ exercise.name }}</p>
+              <p class="item-meta">{{ exercise.durationMinutes }} perc · {{ exercise.caloriesBurned }} kcal</p>
+            </div>
+            <div class="row-actions">
+              <button type="button" class="btn btn-secondary btn-small" (click)="editExercise(exercise.id)">Szerkesztés</button>
+              <button type="button" class="btn btn-secondary btn-small" (click)="deleteExercise(exercise.id)">Törlés</button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+</div>

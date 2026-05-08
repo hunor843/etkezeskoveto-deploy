@@ -1,0 +1,30 @@
+<a class="skip-link" href="#main-content">Ugrás a tartalomra</a>
+
+<div class="app-shell">
+  <app-header></app-header>
+
+  <main id="main-content" class="app-main" role="main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <app-footer></app-footer>
+</div>
+
+@if (toastMessage()) {
+  <div class="toast" role="status" aria-live="polite">
+    {{ toastMessage() }}
+  </div>
+}
+
+@if (showBackToTop()) {
+  <div class="back-to-top-banner back-to-top-banner--visible" aria-live="polite">
+    <span class="back-to-top-banner__text">Elérted az oldal alját.</span>
+    <button
+      type="button"
+      class="back-to-top-banner__button"
+      (click)="scrollToTop()"
+    >
+      Ugrás az oldal tetejére
+    </button>
+  </div>
+}

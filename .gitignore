@@ -1,0 +1,24 @@
+# Node
+node_modules/
+
+# Environment
+.env
+.env.*
+secrets.json
+
+# Firebase
+firebase.json
+.firebaserc
+
+# Build
+dist/
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db

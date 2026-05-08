@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Alma">
+  <rect width="120" height="120" rx="20" fill="#fee2e2"/>
+  <circle cx="52" cy="68" r="24" fill="#ef4444"/>
+  <circle cx="69" cy="68" r="24" fill="#dc2626"/>
+  <path d="M60 36c2-7 9-12 16-12-1 7-8 12-16 12z" fill="#22c55e"/>
+  <rect x="57" y="28" width="5" height="10" rx="2" fill="#7c2d12"/>
+</svg>

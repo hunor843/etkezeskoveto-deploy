@@ -1,0 +1,103 @@
+<div class="page-container forum-page">
+  <header class="forum-header">
+    <h1>Fórum</h1>
+    <p class="forum-subtitle">Böngéssz a témák között, és keress rá kulcsszavakra.</p>
+  </header>
+
+  <section aria-label="Új fórumtéma létrehozása" class="card">
+    <header class="card-header card-header--stack">
+      <h2 class="card-title">Új téma létrehozása</h2>
+      <p class="card-text">Adj meg egy fő témát és a nyitó üzenetet, ami a téma megnyitásakor látszik.</p>
+    </header>
+
+    @if (isLoggedIn()) {
+      <form class="topic-create-form" [formGroup]="topicCreateForm" (ngSubmit)="submitTopic()" novalidate>
+        <div class="form-field">
+          <label class="form-label" for="topic-title">Fő téma</label>
+          <input id="topic-title" class="form-control" type="text" formControlName="title" placeholder="Pl. Reggeli ötletek diétához" />
+          @if (hasCreateFieldError('title')) {
+            <p class="forum-error">Adj meg legalább 5 karakter hosszú címet.</p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="topic-body">Nyitó üzenet</label>
+          <textarea
+            id="topic-body"
+            class="form-control"
+            rows="4"
+            formControlName="body"
+            placeholder="Írd le, mi legyen a téma részletes nyitó üzenete..."
+          ></textarea>
+          @if (hasCreateFieldError('body')) {
+            <p class="forum-error">Adj meg legalább 10 karakter hosszú nyitó üzenetet.</p>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="creatingTopic() || loading()">Téma létrehozása</button>
+        </div>
+      </form>
+    } @else {
+      <p class="card-text">Új témát csak bejelentkezés után tudsz létrehozni.</p>
+      <a
+        routerLink="/login"
+        [queryParams]="{ returnUrl: router.url }"
+        class="btn btn-secondary forum-login-link"
+      >
+        Bejelentkezés
+      </a>
+    }
+  </section>
+
+  <section aria-label="Fórum témák" class="card">
+    <header class="card-header card-header--stack">
+      <h2 class="card-title">Témák</h2>
+      <p class="card-text">Összes téma: {{ topics().length }}</p>
+      <div class="form-field search-field">
+        <label class="form-label" for="forum-search">Keresés cím alapján</label>
+        <input
+          id="forum-search"
+          class="form-control"
+          type="search"
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+          placeholder="Pl. makró"
+        />
+      </div>
+    </header>
+
+    @if (loading()) {
+      <p class="card-text">Betöltés folyamatban...</p>
+    } @else if (error()) {
+      <p class="card-text forum-error" aria-live="assertive">{{ error() }}</p>
+    } @else if (topics().length === 0) {
+      <p class="card-text">Nincs találat.</p>
+    } @else {
+      <ul class="topic-list">
+        @for (topic of topics(); track topic.id) {
+          <li class="topic-item">
+            <div class="topic-row">
+              <a [routerLink]="['/forum', topic.id]" class="topic-link">
+                <h3 class="topic-title">{{ topic.title }}</h3>
+                <p class="topic-meta">{{ topic.replyCount }} válasz · utolsó frissítés: {{ topic.updatedAt | date:'y.MM.dd HH:mm' }}</p>
+              </a>
+
+              @if (canDeleteTopic(topic)) {
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-small"
+                  (click)="deleteTopic(topic, $event)"
+                  [disabled]="deletingTopicId() === topic.id"
+                  aria-label="Téma törlése"
+                >
+                  Törlés
+                </button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

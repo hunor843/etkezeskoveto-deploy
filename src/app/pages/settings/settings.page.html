@@ -1,0 +1,128 @@
+<div class="page-container settings-page">
+  <header class="settings-header">
+    <p class="sr-only">Beállítások főcím</p>
+    <h1>Beállítások</h1>
+	<p class="settings-subtitle">Sötét mód, kontraszt, csökkentett animációk és napi cél beállítása.</p>
+  </header>
+
+  <section class="card" aria-label="Megjelenés">
+    <p class="sr-only">Megjelenés beállítások</p>
+    <h2 class="card-title">Megjelenés</h2>
+    <div class="form-field">
+      <label class="form-checkbox-row">
+        <input
+          type="checkbox"
+          [checked]="darkModeEnabled()"
+          (change)="onDarkModeToggle($event)"
+        />
+        <span>Sötét mód bekapcsolása</span>
+      </label>
+    </div>
+    <div class="form-field">
+      <label class="form-checkbox-row">
+        <input
+          type="checkbox"
+          [checked]="highContrastEnabled()"
+          (change)="onHighContrastToggle($event)"
+        />
+        <span>Kontraszt növelése</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="card" aria-label="Visszajelzés">
+    <p class="sr-only">Visszajelzés beállítások</p>
+    <h2 class="card-title">Visszajelzés</h2>
+    <div class="form-field">
+      <label class="form-checkbox-row">
+		<input
+		  type="checkbox"
+		  [checked]="reduceMotionEnabled()"
+		  (change)="onReduceMotionToggle($event)"
+		/>
+		<span>Animációk csökkentése (kímélő, kevésbé vibráló felület)</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="card" aria-label="Napi cél">
+    <p class="sr-only">Napi cél beállítások</p>
+    <h2 class="card-title">Napi kalóriacél</h2>
+    <div class="form-field-inline">
+      <div class="form-field">
+        <label class="form-label" for="weight">Testsúly (kg)</label>
+        <input
+          id="weight"
+          class="form-control"
+          type="number"
+          min="0"
+          [value]="weightKg() ?? ''"
+          (input)="onWeightChange($event)"
+        />
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="height">Magasság (cm)</label>
+        <input
+          id="height"
+          class="form-control"
+          type="number"
+          min="0"
+          [value]="heightCm() ?? ''"
+          (input)="onHeightChange($event)"
+        />
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="age">Kor</label>
+        <input
+          id="age"
+          class="form-control"
+          type="number"
+          min="0"
+          [value]="age() ?? ''"
+          (input)="onAgeChange($event)"
+        />
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="goal">Cél</label>
+      <select
+        id="goal"
+        class="form-control"
+        [value]="goalType()"
+        (change)="onGoalChange($event)"
+      >
+        <option value="maintain">Szintentartás</option>
+        <option value="lose">Fogyás</option>
+        <option value="gain">Hízás</option>
+      </select>
+    </div>
+
+    <p class="card-text">A pontos napi kalóriacél számítása később lesz elérhető.</p>
+
+    <div class="form-field-inline">
+      <div class="form-field">
+      <label class="form-label" for="water-target">Napi vízcél (ml)</label>
+      <input
+        id="water-target"
+        class="form-control"
+        type="number"
+        min="0"
+        [value]="waterTargetMl()"
+        (input)="onWaterTargetChange($event)"
+      />
+      </div>
+      <div class="form-field">
+      <label class="form-label" for="water-glass-size">Egy pohár mérete (ml)</label>
+      <input
+        id="water-glass-size"
+        class="form-control"
+        type="number"
+        min="50"
+        [value]="waterGlassSizeMl()"
+        (input)="onWaterGlassSizeChange($event)"
+      />
+      </div>
+    </div>
+  </section>
+</div>
