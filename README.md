@@ -22,8 +22,7 @@ npm start (külön terminál)
 
 ## 🌐 Publikus URL
 
-> Jelenleg nincs deployolt (publikus) URL.
-Lokális futtatás: `http://localhost:4200/`
+> Jelenleg elérhető az alábbi publikus URL-en: https://etkezeskoveto-deploy.onrender.com
 
 ---
 
